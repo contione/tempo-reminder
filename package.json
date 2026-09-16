@@ -1,0 +1,39 @@
+{
+  "name": "tempo-reminder",
+  "version": "0.1.0",
+  "description": "A little nudge for your Jira Tempo worklogs.",
+  "main": "./out/main/index.js",
+  "author": "Tempo Reminder contributors",
+  "license": "MIT",
+  "scripts": {
+    "postinstall": "node node_modules/electron/install.js",
+    "dev": "electron-vite dev",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "npm run typecheck && electron-vite build",
+    "start": "electron-vite preview",
+    "icons": "node scripts/build-icons.mjs",
+    "pack": "npm run icons && npm run build && electron-builder --dir",
+    "dist": "npm run icons && npm run build && electron-builder",
+    "check": "npm run typecheck && npm test && electron-vite build"
+  },
+  "dependencies": {
+    "lucide-react": "^1.46.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^24.13.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "electron": "^44.4.1",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^5.0.0",
+    "sharp": "^0.35.4",
+    "typescript": "^7.0.2",
+    "vite": "^7.3.6",
+    "vitest": "^5.0.1"
+  }
+}

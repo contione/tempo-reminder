@@ -1,0 +1,22 @@
+# Tempo Reminder 实施计划
+
+创建 React + TypeScript + Electron 桌面应用，使用 electron-vite 构建，electron-builder 打包。默认只创建本地 Git 仓库。
+
+## 功能范围
+
+- 自动读取当前操作系统用户名、hostname、系统与时区，只在本机展示，不推断 Jira 账号、不上传信息。
+- 默认周一至周五 17:00；支持每天单独启停及时间、统一设置时间、全局开关。
+- 系统通知，点击后在默认浏览器打开用户配置的 HTTPS/HTTP Tempo 地址；未设置地址时打开设置窗口。
+- 本地持久化设置及最后提醒日期；同一天最多一次自动提醒。手动测试不影响自动提醒。
+- 主进程调度，关闭窗口后托盘常驻，单实例，恢复休眠后补当天提醒，不追溯前几天。
+- 可选登录启动（打包后的 Windows/macOS），默认关闭。
+- 工作日按星期配置，不自动识别法定节假日或调休。退出应用、关机时无法提醒。
+- 不接入 Jira/Tempo API，不读取或提交工时；页面地址可按公司环境配置。
+
+## 结构与验证
+
+- src/shared：跨进程类型。
+- src/core：配置验证、日期调度、原子持久化；Vitest 验证边界。
+- src/main、src/preload：Electron 系统能力及受限 IPC。
+- src/renderer：React 设置界面；验证修改、保存、重新打开、测试提醒与错误反馈。
+- 用户确认仅支持 Windows 和 macOS。执行类型检查、调度/存储测试、生产构建、Windows 打包及 Electron 交互检查；macOS x64/arm64 通过 CI 构建配置支持，不宣称已实机验证。
