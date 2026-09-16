@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import {
   AlarmClock,
   ArrowUpRight,
@@ -7,16 +7,16 @@ import {
   Check,
   Clock3,
   Laptop,
-  Settings2,
   ShieldCheck,
   X
 } from 'lucide-react'
 import type { AppState, Settings, Weekday } from '../../shared/types'
 
 const labels = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+const englishDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 const order: Weekday[] = [1, 2, 3, 4, 5, 6, 0]
 
-export function Sidebar({
+export function ActivityBar({
   help,
   onNavigate
 }: {
@@ -24,33 +24,32 @@ export function Sidebar({
   onNavigate: (help: boolean) => void
 }) {
   return (
-    <aside className="sidebar">
-      <div className="brand">
+    <aside className="activity-bar">
+      <div className="app-mark" aria-label="Tempo Reminder">
         <Clock3 aria-hidden="true" />
-        <span>Tempo Reminder</span>
       </div>
-      <nav aria-label="主导航">
+      <nav className="activity-actions" aria-label="主导航">
         <button
-          className={!help ? 'nav-item active' : 'nav-item'}
-          onClick={() => onNavigate(false)}
+          type="button"
+          className={`activity-button ${!help ? 'active' : ''}`}
+          aria-label="提醒设置"
           aria-current={!help ? 'page' : undefined}
+          onClick={() => onNavigate(false)}
         >
-          <Settings2 />
-          提醒设置
+          <Bell aria-hidden="true" />
+          <span className="nav-tooltip">提醒设置</span>
         </button>
         <button
-          className={help ? 'nav-item active' : 'nav-item'}
-          onClick={() => onNavigate(true)}
+          type="button"
+          className={`activity-button help-button ${help ? 'active' : ''}`}
+          aria-label="使用说明"
           aria-current={help ? 'page' : undefined}
+          onClick={() => onNavigate(true)}
         >
-          <BookOpen />
-          使用说明
+          <BookOpen aria-hidden="true" />
+          <span className="nav-tooltip">使用说明</span>
         </button>
       </nav>
-      <div className="sidebar-footer">
-        <span className="running-dot" />
-        应用正在运行<span className="version">v0.1.0</span>
-      </div>
     </aside>
   )
 }
@@ -72,19 +71,27 @@ export function ScheduleEditor({
   return (
     <section className="panel schedule-panel" aria-labelledby="schedule-title">
       <div className="section-heading">
-        <h2 id="schedule-title">提醒计划</h2>
+        <div>
+          <h2 id="schedule-title">每周提醒计划</h2>
+          <p className="section-description">选好时间，剩下的交给我。</p>
+        </div>
         <div className="bulk-anchor">
           <button
             type="button"
-            className="button small subtle"
+            className="button small"
             aria-expanded={bulkOpen}
             onClick={() => setBulkOpen(!bulkOpen)}
           >
-            <Clock3 size={15} />
+            <Clock3 size={16} />
             统一时间
           </button>
           {bulkOpen ? (
-            <div className="bulk-popover">
+            <div
+              className="bulk-popover"
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') setBulkOpen(false)
+              }}
+            >
               <div className="bulk-heading">
                 <label htmlFor="bulk-time">应用到已选日期</label>
                 <button
@@ -93,7 +100,7 @@ export function ScheduleEditor({
                   aria-label="关闭统一时间"
                   onClick={() => setBulkOpen(false)}
                 >
-                  <X size={16} />
+                  <X size={17} />
                 </button>
               </div>
               <input
@@ -102,6 +109,7 @@ export function ScheduleEditor({
                 value={bulkTime}
                 onChange={(event) => setBulkTime(event.target.value)}
                 required
+                autoFocus
               />
               <button
                 type="button"
@@ -128,9 +136,6 @@ export function ScheduleEditor({
           const item = settings.schedule.find((row) => row.day === day)!
           return (
             <div key={day} className={`day-row ${item.enabled ? '' : 'day-disabled'}`}>
-              <label className="day-label" htmlFor={`day-${day}`}>
-                {labels[day]}
-              </label>
               <input
                 className="checkbox"
                 id={`day-${day}`}
@@ -139,6 +144,10 @@ export function ScheduleEditor({
                 checked={item.enabled}
                 onChange={(event) => update(day, { enabled: event.target.checked })}
               />
+              <label className="day-label" htmlFor={`day-${day}`}>
+                {labels[day]}
+                <span>{englishDays[day]}</span>
+              </label>
               <input
                 className="time-input"
                 type="time"
@@ -148,12 +157,61 @@ export function ScheduleEditor({
                 required
                 onChange={(event) => update(day, { time: event.target.value })}
               />
-              <span className="day-state">{item.enabled ? '提醒我' : '休息一下'}</span>
             </div>
           )
         })}
       </div>
     </section>
+  )
+}
+
+function AnalogClock({ date }: { date: Date }) {
+  const hourAngle = (date.getHours() % 12) * 30 + date.getMinutes() * 0.5
+  const minuteAngle = date.getMinutes() * 6
+  return (
+    <svg className="analog-clock" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+      <circle cx="60" cy="60" r="57" className="clock-face" />
+      {Array.from({ length: 12 }, (_, tick) => (
+        <line
+          key={tick}
+          x1="60"
+          y1="10"
+          x2="60"
+          y2={tick % 3 === 0 ? '17' : '14'}
+          transform={`rotate(${tick * 30} 60 60)`}
+          className="clock-tick"
+        />
+      ))}
+      <text x="60" y="23">
+        12
+      </text>
+      <text x="99" y="64">
+        3
+      </text>
+      <text x="60" y="106">
+        6
+      </text>
+      <text x="21" y="64">
+        9
+      </text>
+      <line
+        x1="60"
+        y1="60"
+        x2="60"
+        y2="34"
+        transform={`rotate(${hourAngle} 60 60)`}
+        className="hour-hand"
+      />
+      <line
+        x1="60"
+        y1="60"
+        x2="60"
+        y2="28"
+        transform={`rotate(${minuteAngle} 60 60)`}
+        className="minute-hand"
+      />
+      <circle cx="60" cy="60" r="2.5" fill="#cbdcff" />
+    </svg>
   )
 }
 
@@ -166,41 +224,56 @@ export function Overview({ state, dirty }: { state: AppState; dirty: boolean }) 
   })
   const date = next?.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' })
   return (
-    <aside className="panel overview" aria-label="提醒概览">
-      <div className="overview-title">
-        <h2>下一次提醒</h2>
-        <Bell size={19} />
-      </div>
-      <div className={`next-time ${next ? '' : 'no-next'}`}>
-        {time ?? (state.settings.enabled ? '未安排' : '已暂停')}
-      </div>
-      <p className="next-date">
-        {date ?? (state.settings.enabled ? '选择需要提醒的日期' : '开启后，继续准时见面')}
-      </p>
-      <p className="timezone">
-        <span className="tiny-dot" />
-        {dirty ? '按已保存的计划' : `本地时间 · ${state.device.timezone}`}
-      </p>
-      <div className="device-block">
-        <div className="device-heading">
-          <h2>本机信息</h2>
-          <Laptop size={18} />
+    <aside className="overview-column" aria-label="提醒概览">
+      <section className={`time-panel ${next ? '' : 'time-panel-paused'}`}>
+        <h2 className="time-panel-title">
+          <Bell aria-hidden="true" />
+          下一次提醒
+        </h2>
+        <div className="time-display">
+          <div className={`next-time ${next ? '' : 'no-next'}`}>
+            {time ?? (state.settings.enabled ? '未安排' : '已暂停')}
+          </div>
+          {next ? (
+            <AnalogClock date={next} />
+          ) : (
+            <div className="paused-clock">
+              <Clock3 />
+            </div>
+          )}
         </div>
-        <dl>
-          <div>
-            <dt>系统用户名</dt>
-            <dd title={state.device.username}>{state.device.username}</dd>
-          </div>
-          <div>
-            <dt>电脑名称</dt>
-            <dd title={state.device.hostname}>{state.device.hostname}</dd>
-          </div>
-        </dl>
-        <p className="privacy-note">
-          <ShieldCheck size={14} />
-          自动读取，仅在本机显示
+        <p className="next-date">
+          {date ?? (state.settings.enabled ? '选择需要提醒的日期' : '让提醒也休息一下')}
         </p>
-      </div>
+        <p className="timezone">
+          {dirty ? '按已保存的计划 · 保存后生效' : `本地时间 · ${state.device.timezone}`}
+        </p>
+        <p className="time-reassurance">
+          {next ? '到点叫你，安心忙吧。' : '准备好时，随时再出发。'}
+        </p>
+      </section>
+      <section className="panel device-panel" aria-labelledby="device-title">
+        <h2 id="device-title">当前设备</h2>
+        <div className="device-content">
+          <Laptop className="device-icon" aria-hidden="true" />
+          <div className="device-details">
+            <dl>
+              <div>
+                <dt>系统用户名</dt>
+                <dd title={state.device.username}>{state.device.username}</dd>
+              </div>
+              <div>
+                <dt>电脑名称</dt>
+                <dd title={state.device.hostname}>{state.device.hostname}</dd>
+              </div>
+            </dl>
+            <p className="privacy-note">
+              <ShieldCheck size={13} />
+              仅在本机显示。
+            </p>
+          </div>
+        </div>
+      </section>
     </aside>
   )
 }
@@ -209,12 +282,14 @@ export function TempoLink({
   value,
   onChange,
   canOpen,
-  onOpen
+  onOpen,
+  children
 }: {
   value: string
   onChange: (value: string) => void
   canOpen: boolean
   onOpen: () => void
+  children: ReactNode
 }) {
   return (
     <section className="panel link-panel">
@@ -224,7 +299,7 @@ export function TempoLink({
         </h2>
         <button type="button" className="text-button" disabled={!canOpen} onClick={onOpen}>
           打开 Tempo
-          <ArrowUpRight size={16} />
+          <ArrowUpRight size={17} />
         </button>
       </div>
       <input
@@ -238,7 +313,8 @@ export function TempoLink({
         autoComplete="off"
         aria-describedby="url-hint"
       />
-      <p id="url-hint">粘贴你的工时页面地址，提醒后就能一键抵达。可以稍后再设置。</p>
+      <p id="url-hint">粘贴你的工时页面，提醒后就能一键抵达。</p>
+      {children}
     </section>
   )
 }
@@ -281,23 +357,23 @@ export function Help() {
       <section className="help-notes">
         <h2>几个小约定</h2>
         <p>
-          <Check size={16} />
+          <Check size={17} />
           关闭窗口后，应用继续在系统托盘运行；彻底退出后停止提醒。
         </p>
         <p>
-          <Check size={16} />
+          <Check size={17} />
           每天最多一次自动提醒。当天错过时间，启动或唤醒电脑时补提醒。
         </p>
         <p>
-          <Check size={16} />
+          <Check size={17} />
           按电脑本地时间和所选星期执行，不自动识别法定节假日或调休。
         </p>
         <p>
-          <Check size={16} />
+          <Check size={17} />
           这里只提醒，不检查或提交工时，也不上传你的用户名和电脑名称。
         </p>
         <p>
-          <AlarmClock size={16} />
+          <AlarmClock size={17} />
           没收到通知？检查系统通知权限和勿扰模式。Windows 建议安装后使用。
         </p>
       </section>

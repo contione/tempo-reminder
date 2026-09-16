@@ -4,6 +4,8 @@ Tempo Reminder 是一个面向 **Windows 和 macOS** 的轻量 React + TypeScrip
 
 ## 功能
 
+0.1.1 界面采用深色主题、VS Code 风格窄导航栏和更清晰的提醒时间展示，内置离线中文字体。升级沿用已有提醒设置。
+
 - 默认在周一至周五 17:00 提醒，也可以分别设置每一天的启用状态和时间，并用全局开关暂停提醒。
 - 自动读取当前电脑的操作系统用户名、hostname、平台和时区，只在本机界面展示。这些信息不是 Jira 用户名，不会上传，也不会用于登录 Jira。
 - 设置 Tempo 的 HTTP/HTTPS 页面地址后，可以从通知或应用内按钮用默认浏览器打开；应用不会调用 Jira/Tempo API，不会读取、检查或提交工时。
@@ -51,7 +53,7 @@ rtk npm run build
 rtk npx electron-builder --dir --publish never
 ```
 
-构建不会自动配置代码签名。生产发布、签名和更新分发需要在应用之外单独规划；本项目当前没有自动更新功能，也没有配置 GitHub 远程仓库或发布流程。
+构建不会自动配置代码签名。生产发布、签名和更新分发需要在应用之外单独规划；本项目当前没有自动更新功能。代码仓库：[contione/tempo-reminder](https://github.com/contione/tempo-reminder)。
 
 当前 Windows 安装包已生成并完成打包程序启动检查，尚未配置发行者签名。已通过 11 项核心测试，以及真实 Electron 窗口中的设置保存、重启恢复、通知调用、自动调度、唤醒去重和托盘常驻验证。macOS 构建已配置，尚未在 Mac 上执行构建和实机验证。
 
@@ -66,7 +68,7 @@ rtk npx electron-builder --dir --publish never
 
 ## CI
 
-`.github/workflows/ci.yml` 在 Windows 和 macOS 上执行依赖安装、类型检查、测试和构建，然后生成 Windows x64 `.exe` 与 macOS x64/arm64 `.dmg`。构建产物上传到 Actions artifacts，不发布 Release。当前仅配置了工作流；连接远程仓库后才会运行，macOS 尚未实机验证。
+`.github/workflows/ci.yml` 在推送、Pull Request 或手动触发后，分别在 Windows 和 macOS 上执行依赖安装、类型检查、测试和构建，然后生成 Windows x64 `.exe` 与 macOS x64/arm64 `.dmg`。构建产物上传到 Actions artifacts，不发布 Release。macOS 尚未实机验证。
 
 ## 许可
 

@@ -5,9 +5,11 @@ import {
   ipcMain,
   Menu,
   nativeImage,
+  nativeTheme,
   Notification,
   powerMonitor,
   shell,
+  screen,
   Tray
 } from 'electron'
 import type { IpcMainInvokeEvent } from 'electron'
@@ -57,13 +59,15 @@ function showWindow(): void {
 }
 
 function createWindow(): void {
+  nativeTheme.themeSource = 'dark'
+  const workArea = screen.getPrimaryDisplay().workAreaSize
   window = new BrowserWindow({
-    width: 1160,
-    height: 860,
+    width: Math.min(1140, Math.max(820, workArea.width - 56)),
+    height: Math.min(940, Math.max(640, workArea.height - 56)),
     minWidth: 820,
     minHeight: 640,
     title: 'Tempo Reminder',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#181b21',
     icon: resource('icon.png'),
     show: false,
     autoHideMenuBar: true,

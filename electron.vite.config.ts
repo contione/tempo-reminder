@@ -6,7 +6,8 @@ export default defineConfig({
   main: {},
   preload: {},
   renderer: {
-    build: { minify: 'esbuild' },
+    // Keep fonts as local files; the renderer CSP intentionally disallows data: fonts.
+    build: { minify: 'esbuild', assetsInlineLimit: 0 },
     resolve: { alias: { '@': resolve('src/renderer/src') } },
     plugins: [react()]
   }
