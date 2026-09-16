@@ -39,6 +39,8 @@ rtk npm test
 
 ## 打包
 
+已构建的 Windows x64 安装包 ZIP 提交在 [releases/windows](releases/windows/README.md)，使用 Git LFS 管理。解压后运行其中的 `.exe` 即可安装；归档内外均提供 SHA-256 校验文件。
+
 生成当前操作系统的安装包：
 
 ```powershell
